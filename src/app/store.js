@@ -1,16 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
-import registerReducer from "../features/users/registerSlice";
-import loginReducer from "../features/users/loginSlice";
-import forgotReducer from "../features/users/forgotSlice";
-import resetReducer from "../features/users/resetSlice";
-
+import userReducer from "../features/users/userSlice";
+import trainerReducer from "../features/users/trainerSlice";
+import authReducer from "../features/auth/authSlice";
+import homeReducer from "../features/users/homeSlice";
+import classReducer from "../features/class/classSlice";
 
 const store = configureStore({
-    reducer: {
-        register: registerReducer,
-        login: loginReducer,
-        forgot: forgotReducer,
-        reset: resetReducer
-    }
+  reducer: {
+    auth: authReducer,
+    user: userReducer,
+    trainer: trainerReducer,
+    home: homeReducer,
+    class: classReducer,
+  },
 });
 export default store;

@@ -1,38 +1,70 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    role: ''
+  _id: null,
+  firstName: null,
+  lastName: null,
+  email: null,
+  isActive: false,
+  role: null,
+  phone: null,
+  profilePicture: null,
+  fitnessGoals: [],
+  preferences: {
+    classTypes: [],
+    preferredTimes: [],
+  },
+  error: null,
 };
 
 export const userSlice = createSlice({
-    name: 'user',
-    initialState,
-    reducers: {
-        setUser: (state, action) => {
-            state.firstName = action.payload;
-            state.lastName = action.payload;
-            state.email = action.payload;
-            state.role = action.payload;
-        },
-        clearUser: (state) => {
-            state.firstName = '';
-            state.lastName = '';
-            state.email = '';
-            state.role = '';
-        }
-    }
+  name: "user",
+  initialState,
+  reducers: {
+    setUser: (state, action) => {
+      const {
+        _id = null,
+        firstName = null,
+        lastName = null,
+        email = null,
+        isActive = false,
+        role = null,
+        phone = null,
+        profilePicture = null,
+        fitnessGoals = [],
+        preferences = { classTypes: [], preferredTimes: [] },
+        error = null,
+      } = action.payload;
+
+      state._id = _id;
+      state.firstName = firstName;
+      state.lastName = lastName;
+      state.email = email;
+      state.isActive = isActive;
+      state.role = role;
+      state.phone = phone;
+      state.profilePicture = profilePicture;
+      state.fitnessGoals = fitnessGoals;
+      state.preferences = preferences;
+      state.error = error;
+    },
+    setUserError: (state, action) => {
+      state.error = action.payload;
+    },
+    clearUser: (state) => initialState,
+    updateUser: (state, action) => {
+      Object.assign(state, action.payload);
+    },
+  },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, setUserError, clearUser, updateUser } =
+  userSlice.actions;
 
-export const selectUser = (state) => ({
-    firstName: state.user.firstName,
-    lastName: state.user.lastName,
-    email: state.user.email,
-    role: state.user.role
-});
+export const selectUser = (state) => state.user;
+export const selectUserId = (state) => state.user._id;
+export const selectUserRole = (state) => state.user.role;
+export const selectUserFirstName = (state) => state.user.firstName;
+export const selectUserEmail = (state) => state.user.email;
 
 export default userSlice.reducer;
