@@ -20,7 +20,7 @@ import {
   extractTimeFromUTC,
 } from "../utils/dateUtils";
 import bookingServices from "../services/bookingServices";
-import StarRating from "./StarRating"; // Import the new StarRating component
+import StarRating from "./StarRating";
 
 const ClassDetails = () => {
   const { classId } = useParams();

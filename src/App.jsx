@@ -27,6 +27,7 @@ import TrainerProfile from "./components/TrainerProfile";
 import { useEffect } from "react";
 import authServices from "./services/authServices";
 import UserProfile from "./components/UserProfile";
+import Footer from "./wrappers/Footer";
 
 const Layout = () => {
   return (
@@ -35,6 +36,7 @@ const Layout = () => {
       <main className="p-4">
         <Outlet />
       </main>
+      <Footer />
     </>
   );
 };

@@ -76,7 +76,7 @@ const Home = () => {
           {featuredClasses.length > 0 ? (
             featuredClasses.map((item) => {
               const currentDate = new Date();
-              const startTime = new Date(item.startTime); // Assuming item.startTime is in ISO format
+              const startTime = new Date(item.startTime);
               const isDisabled =
                 item.slotsAvailable === 0 || currentDate > startTime;
 
@@ -132,11 +132,6 @@ const Home = () => {
           )}
         </div>
       </section>
-
-      <footer className="py-10 text-center bg-gray-200">
-        <p>&copy; {new Date().getFullYear()} FitBuddy. All Rights Reserved.</p>
-        <p>Images by Freepik & Pixabay</p>
-      </footer>
     </div>
   );
 };
