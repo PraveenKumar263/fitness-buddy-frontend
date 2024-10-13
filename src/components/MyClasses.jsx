@@ -12,7 +12,7 @@ import classServices from "../services/classServices";
 import { Link } from "react-router-dom";
 import { selectTrainerId } from "../features/users/trainerSlice";
 import { extractDateFromUTC, extractTimeFromUTC } from "../utils/dateUtils";
-import ClassCard from "./classCard";
+import ClassCard from "./ClassCard";
 
 const MyClasses = () => {
   const dispatch = useDispatch();

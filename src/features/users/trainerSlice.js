@@ -44,15 +44,30 @@ export const trainerSlice = createSlice({
       state.videos = videos;
       state.error = error;
     },
-
     setTrainerError: (state, action) => {
       state.error = action.payload;
     },
     clearTrainer: (state) => initialState,
+    updateTrainerInfo: (state, action) => {
+      const {
+        qualifications,
+        expertise,
+        specializations,
+        introduction,
+        photos,
+        videos,
+      } = action.payload;
+      state.qualifications = qualifications;
+      state.expertise = expertise;
+      state.specializations = specializations;
+      state.introduction = introduction;
+      state.photos = photos;
+      state.videos = videos;
+    },
   },
 });
 
-export const { setTrainer, setTrainerError, clearTrainer } =
+export const { setTrainer, setTrainerError, clearTrainer, updateTrainerInfo } =
   trainerSlice.actions;
 
 export const selectTrainer = (state) => state.trainer;

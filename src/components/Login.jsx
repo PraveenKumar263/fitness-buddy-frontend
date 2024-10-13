@@ -27,7 +27,13 @@ const Login = () => {
       try {
         const response = await authServices.login(values);
         dispatch(loginSuccess());
-        setTimeout(() => navigate("/dashboard"), 500);
+        const redirectPath = localStorage.getItem("redirectPath");
+        if (redirectPath) {
+          localStorage.removeItem("redirectPath");
+          navigate(redirectPath);
+        } else {
+          setTimeout(() => navigate("/dashboard"), 500);
+        }
       } catch (error) {
         dispatch(
           loginFail(
@@ -46,7 +52,7 @@ const Login = () => {
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
-          className="mx-auto h-13 w-auto"
+          className="mx-auto h-12 w-auto"
           src="/FitBuddyLogo.jpeg"
           alt="FitBuddy"
         />

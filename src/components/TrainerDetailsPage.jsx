@@ -1,5 +1,3 @@
-// src/pages/TrainerDetailsPage.jsx
-import React from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -8,7 +6,6 @@ const TrainerDetailsPage = () => {
   const trainer = useSelector((state) =>
     state.trainers.find((t) => t._id === trainerId)
   );
-  const [error, setError] = React.useState("");
 
   if (!trainer) {
     return <div className="text-center p-4">Trainer not found</div>;
@@ -20,7 +17,7 @@ const TrainerDetailsPage = () => {
       <div className="bg-white shadow-md rounded-lg p-6">
         <div className="flex items-center mb-4">
           <img
-            src={trainer.profilePicture}
+            src={trainer.user.profilePicture}
             alt={trainer.user.firstName}
             className="w-24 h-24 rounded-full object-cover mr-4"
           />

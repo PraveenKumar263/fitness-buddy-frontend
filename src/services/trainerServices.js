@@ -9,8 +9,8 @@ const trainerServices = {
   getTrainerByUserId: async (userId) => {
     return await instance.get(`${API_URL}/${userId}`);
   },
-  updateTrainer: async (trainerId, updates) => {
-    return await instance.put(`${API_URL}/${trainerId}`, updates);
+  updateTrainer: async (updates) => {
+    return await instance.put(`${API_URL}/update`, updates);
   },
   getFeaturedTrainers: async () => {
     return await instance.get(`${API_URL}/featured`);

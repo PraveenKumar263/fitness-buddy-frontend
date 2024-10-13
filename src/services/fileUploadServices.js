@@ -1,26 +1,19 @@
 import axios from "axios";
 
-const IMGUR_CLIENT_ID = import.meta.env.IMGUR_CLIENT_ID; // Update to your env variable name
+const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
 
-const uploadImageToImgur = async (file) => {
+const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append("image", file);
-
   try {
     const response = await axios.post(
-      "https://api.imgur.com/3/image",
-      formData,
-      {
-        headers: {
-          Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
-        },
-      }
+      `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+      formData
     );
 
-    if (response.data && response.data.data && response.data.data.link) {
+    if (response.data && response.data.data && response.data.data.url) {
       return {
-        link: response.data.data.link,
-        deleteHash: response.data.data.deletehash, // Store this for deletion
+        link: response.data.data.url,
       };
     }
   } catch (error) {
@@ -29,22 +22,4 @@ const uploadImageToImgur = async (file) => {
   }
 };
 
-const deleteImageFromImgur = async (deleteHash) => {
-  try {
-    const response = await axios.delete(
-      `https://api.imgur.com/3/image/${deleteHash}`,
-      {
-        headers: {
-          Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
-        },
-      }
-    );
-
-    return response.data.success; // Returns true if the delete was successful
-  } catch (error) {
-    console.error("Error deleting image:", error);
-    throw error;
-  }
-};
-
-export { uploadImageToImgur, deleteImageFromImgur };
+export { uploadImage };

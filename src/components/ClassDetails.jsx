@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setLoading,
@@ -36,6 +36,7 @@ const ClassDetails = () => {
   const [bookingError, setBookingError] = useState(null);
   const userId = useSelector(selectUserId);
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const location = useLocation();
 
   useEffect(() => {
     const fetchClassDetails = async () => {
@@ -104,6 +105,10 @@ const ClassDetails = () => {
   };
 
   const handleBooking = () => {
+    if (!userId) {
+      localStorage.setItem("redirectPath", location.pathname);
+      navigate("/login");
+    }
     setIsAlertVisible(true);
     setBookingError(null);
   };
@@ -132,14 +137,14 @@ const ClassDetails = () => {
   if (error) return <div className="text-red-500">{error}</div>;
   if (!classDetails) return <div>No class details found.</div>;
 
-  const mainClassPage = userRole === "trainer" ? "my-classes" : "classes";
   return (
     <div className="p-4 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
+      {/* Back Button */}
       <button
-        onClick={() => navigate(`/dashboard/${mainClassPage}`)}
-        className="mb-4 bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 transition duration-200"
+        className="mb-4 bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 transition"
+        onClick={() => navigate(-1)}
       >
-        Return to Classes
+        Back
       </button>
 
       <h1 className="text-2xl font-bold mb-4">{classDetails.title}</h1>
@@ -180,7 +185,7 @@ const ClassDetails = () => {
         <span className="font-semibold">Rating:</span>{" "}
         <StarRating rating={classDetails.rating} />
       </div>
-
+      {/* Trainer editable data */}
       {userRole === "trainer" ? (
         <div className="mt-4 flex space-x-4">
           <button

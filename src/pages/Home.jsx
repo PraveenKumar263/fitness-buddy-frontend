@@ -7,20 +7,21 @@ import {
   getFeaturedTrainersStart,
   getFeaturedTrainersSuccess,
   getFeaturedTrainersFail,
+  selectHome,
 } from "../features/users/homeSlice";
 import { setTrainer } from "../features/users/trainerSlice";
 import classServices from "../services/classServices";
 import trainerServices from "../services/trainerServices";
 import SpinnerIcon from "../components/SpinnerIcon";
-import Card from "../components/Card";
+import ClassCard from "../components/ClassCard";
+import TrainerCard from "../components/TrainerCard";
 import { useNavigate, Link } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { featuredClasses, featuredTrainers, loading } = useSelector(
-    (state) => state.home
-  );
+  const { featuredClasses, featuredTrainers, loading } =
+    useSelector(selectHome);
 
   useEffect(() => {
     const getData = async () => {
@@ -61,18 +62,18 @@ const Home = () => {
           </h1>
           <Link
             to="/classes"
-            className="mt-5 bg-indigo-700 text-white py-2 px-4 rounded"
+            className="mt-5 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md"
           >
             Browse Classes
           </Link>
         </div>
       </header>
 
-      <section className="py-20">
+      <section className="py-20 my-4 bg-gray-200">
         <h2 className="text-3xl font-bold text-center mb-10">
           Featured Classes
         </h2>
-        <div className="flex justify-around">
+        <div className="flex justify-around ">
           {featuredClasses.length > 0 ? (
             featuredClasses.map((item) => {
               const currentDate = new Date();
@@ -81,16 +82,14 @@ const Home = () => {
                 item.slotsAvailable === 0 || currentDate > startTime;
 
               return (
-                <Card
+                <ClassCard
                   key={item._id}
-                  title={item.title}
-                  description={item.description}
-                  image={
-                    item.image ||
-                    "https://i.postimg.cc/VsWFRGBJ/dummy-avatar.png"
-                  }
-                  buttonText="Book Now"
-                  buttonLink="/book"
+                  classData={{
+                    ...item,
+                    image:
+                      item.image ||
+                      "https://i.postimg.cc/VsWFRGBJ/dummy-avatar.png",
+                  }}
                   disabled={isDisabled}
                 />
               );
@@ -103,22 +102,16 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-100">
+      <section className="py-20 bg-gray-200">
         <h2 className="text-3xl font-bold text-center mb-10">
           Meet Our Trainers
         </h2>
         <div className="flex justify-around">
           {featuredTrainers.length > 0 ? (
             featuredTrainers.map((item) => (
-              <Card
+              <TrainerCard
                 key={item._id}
-                title={`${item.user.firstName} ${item.user.lastName}`}
-                description={item.introduction}
-                image={
-                  item.profilePicture ||
-                  "https://i.postimg.cc/VsWFRGBJ/dummy-avatar.png"
-                }
-                buttonText="View Profile"
+                trainer={item}
                 onClick={() => {
                   dispatch(setTrainer(item));
                   navigate(`/trainers/${item._id}`);

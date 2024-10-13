@@ -1,9 +1,12 @@
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { selectAuthenticated } from "../features/auth/authSlice";
+import { selectUserRole } from "../features/users/userSlice";
 
 const HomeNav = () => {
   const isAuthenticated = useSelector(selectAuthenticated);
+  const userRole = useSelector(selectUserRole);
+
   return (
     <nav className="bg-gray-800 sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -16,11 +19,15 @@ const HomeNav = () => {
                 alt="FitBuddy"
               />
             </div>
-            <Link to="/" className="text-white ml-4">
-              Home
-            </Link>
+            {userRole === "trainer" ? (
+              <></>
+            ) : (
+              <Link to="/" className="text-white ml-4">
+                Home
+              </Link>
+            )}
           </div>
-          <div className="hidden sm:block">
+          <div className="sm:block">
             <div className="flex space-x-4">
               {isAuthenticated ? (
                 <>

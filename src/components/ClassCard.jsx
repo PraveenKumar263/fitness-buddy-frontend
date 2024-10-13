@@ -1,12 +1,15 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setCurrentClass } from "../features/class/classSlice";
 import { extractDateFromUTC, extractTimeFromUTC } from "../utils/dateUtils";
 import StarRating from "./StarRating";
+import { selectAuthenticated } from "../features/auth/authSlice";
+import { useEffect } from "react";
 
 const ClassCard = ({ classData }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const defaultImages = {
     yoga: "https://i.postimg.cc/0N1kwzHH/yoga-art.jpg",
     "strength training": "https://i.postimg.cc/jdNdd6MJ/strength-art.jpg",
@@ -16,13 +19,13 @@ const ClassCard = ({ classData }) => {
 
   const handleClick = () => {
     dispatch(setCurrentClass(classData));
-    navigate(`/dashboard/classes/${classData._id}`);
+    navigate(`/classes/${classData._id}`);
   };
 
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
-    <div className="max-w-sm rounded overflow-hidden shadow-lg flex flex-col items-center">
+    <div className="max-w-sm rounded overflow-hidden shadow-lg flex flex-col items-center bg-white">
       <div className="flex items-center justify-center h-48 w-full">
         <img
           className="h-full object-cover"
@@ -48,7 +51,7 @@ const ClassCard = ({ classData }) => {
       <div className="px-6 py-4">
         <button
           onClick={handleClick}
-          className="mt-4 bg-blue-600 text-white py-2 px-4 rounded"
+          className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded transition"
         >
           View Details
         </button>

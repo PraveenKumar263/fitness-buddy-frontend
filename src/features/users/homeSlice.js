@@ -47,4 +47,5 @@ export const {
   getFeaturedTrainersFail,
 } = homeSlice.actions;
 
+export const selectHome = (state) => state.home;
 export default homeSlice.reducer;
