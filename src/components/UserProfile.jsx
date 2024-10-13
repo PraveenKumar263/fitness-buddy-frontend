@@ -1,239 +1,181 @@
-import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { selectUser, updateUser } from "../features/users/userSlice";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useState, useEffect } from "react";
+import { selectUser, updateUserBasicInfo } from "../features/users/userSlice";
+import SpinnerIcon from "./SpinnerIcon";
+import TrainerProfileForm from "./TrainerProfileForm";
+import UserProfileForm from "./UserProfileForm";
 import {
-  uploadImageToImgur,
-  deleteImageFromImgur,
-} from "../services/fileUploadServices";
-import { userValidation } from "../validations/userValidation";
+  selectTrainer,
+  updateTrainerInfo,
+} from "../features/users/trainerSlice";
+import { uploadImage } from "../services/fileUploadServices";
+import userServices from "../services/userServices";
+import trainerServices from "../services/trainerServices";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const [initialValues, setInitialValues] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    role: "",
-    phone: "",
-    profilePicture: "",
-    fitnessGoals: [],
-    classTypes: [],
-    preferredTimes: [],
-    membershipPlan: "",
-    membershipExpiration: "",
-  });
-  const [isEditable, setIsEditable] = useState(false);
-  const [profilePicture, setProfilePicture] = useState("");
-  const [currentDeleteHash, setCurrentDeleteHash] = useState("");
+  const [isBasicEditable, setIsBasicEditable] = useState(false);
+  const [isTrainerEditable, setIsTrainerEditable] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(user.profilePicture);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const trainer = useSelector(selectTrainer);
 
   useEffect(() => {
-    if (user) {
-      setInitialValues({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        phone: user.phone || "",
-        profilePicture: user.profilePicture || "",
-        fitnessGoals: user.fitnessGoals || [],
-        classTypes: user.preferences?.classTypes || [],
-        preferredTimes: user.preferences?.preferredTimes || [],
-        membershipPlan: user.membership?.plan || "",
-        membershipExpiration: user.membership?.expirationDate
-          ? new Date(user.membership.expirationDate).toLocaleDateString()
-          : "",
-      });
-      setProfilePicture(
-        user.profilePicture || "https://i.postimg.cc/VsWFRGBJ/dummy-avatar.png"
-      );
-      setCurrentDeleteHash(user.deleteHash || "");
+    setProfilePicture(user.profilePicture);
+  }, [user.profilePicture]);
+
+  // Update User collection
+  const saveUserInfo = async (data) => {
+    try {
+      await userServices.updateUserDetails(data);
+    } catch (error) {
+      setError("Failed to update user information. Please try again.");
     }
-  }, [user]);
-
-  const handleSubmit = (values) => {
-    dispatch(
-      updateUser({ ...values, profilePicture, deleteHash: currentDeleteHash })
-    );
-    setIsEditable(false);
   };
 
-  const handleEdit = () => {
-    setIsEditable(true);
+  // Update trainer collection
+  const saveTrainerInfo = async (data) => {
+    try {
+      await trainerServices.updateTrainer(data);
+    } catch (error) {
+      setError("Failed to update trainer specific data. Please try again.");
+    }
   };
 
-  const handleCancel = (resetForm) => {
-    resetForm();
-    setIsEditable(false);
+  const handleBasicSubmit = (values) => {
+    setLoading(true);
+    try {
+      const newBasicInfo = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
+      };
+      saveUserInfo(newBasicInfo);
+      dispatch(updateUserBasicInfo(newBasicInfo));
+      setIsBasicEditable(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleImageUpload = async (event) => {
-    const file = event.currentTarget.files[0];
+  const handleTrainerSubmit = (values) => {
+    setLoading(true);
+    try {
+      const newTrainerInfo = {
+        introduction: values.introduction,
+        qualifications: values.qualifications,
+        expertise: values.expertise,
+        specializations: values.specializations,
+        photos: values.photos,
+        videos: values.videos,
+      };
+      saveTrainerInfo(newTrainerInfo);
+      dispatch(updateTrainerInfo(newTrainerInfo));
+      setIsTrainerEditable(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProfilePictureChange = async (event) => {
+    const file = event.target.files[0];
     if (file) {
+      const maxSize = 1 * 1024 * 1024; // 1 MB
+      if (file.size > maxSize) {
+        setError("File size exceeds 1 MB. Please choose a smaller file.");
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
       try {
-        const { link, deleteHash } = await uploadImageToImgur(file);
-        setProfilePicture(link);
-        setCurrentDeleteHash(deleteHash);
+        const uploadedImage = await uploadImage(file);
+        const newLink = { profilePicture: uploadedImage.link };
+        await userServices.updateProfilePicture(newLink);
+        dispatch(updateUserBasicInfo(newLink));
+        setProfilePicture(uploadedImage.link);
       } catch (error) {
-        console.error("Image upload failed:", error);
+        setError("Failed to upload image. Please try again.");
+      } finally {
+        setLoading(false);
       }
     }
   };
 
-  const handleImageRemove = async () => {
-    if (currentDeleteHash) {
-      try {
-        const success = await deleteImageFromImgur(currentDeleteHash);
-        if (success) {
-          setProfilePicture("");
-          setCurrentDeleteHash("");
-        }
-      } catch (error) {
-        console.error("Image deletion failed:", error);
-      }
-    }
-  };
+  if (!user) return <SpinnerIcon />;
 
-  if (!user) return <div className="text-center">Loading...</div>;
+  const { _id, firstName, lastName, email, phone, role } = user;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold mb-6">User Profile</h1>
-      <div className="mb-6">
-        <img
-          src={profilePicture}
-          alt="Profile"
-          className="w-32 h-32 object-cover rounded-full mb-4"
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="p-2 rounded w-full mb-2"
-        />
-        {currentDeleteHash && (
-          <button
-            type="button"
-            onClick={handleImageRemove}
-            className="mt-2 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
+    <section className="bg-white">
+      <div className="max-w-4xl px-4 py-8 mx-auto lg:py-16">
+        <h2 className="mb-4 text-2xl font-bold text-gray-900">User Profile</h2>
+
+        {/* Profile Picture */}
+        <div className="flex justify-center mb-6">
+          <img
+            src={profilePicture}
+            alt="Profile"
+            className="w-40 h-40 rounded-full object-cover border-2 border-gray-300"
+          />
+        </div>
+        <div className="flex justify-center mb-6">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleProfilePictureChange}
+            className="hidden"
+            id="profilePictureInput"
+          />
+          <label
+            htmlFor="profilePictureInput"
+            className="cursor-pointer text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2"
           >
-            Remove Image
-          </button>
+            {loading ? "Updating..." : "Change Profile Picture"}
+          </label>
+        </div>
+        {error && <p className="text-red-500">{error}</p>}
+
+        {/* User form */}
+        <div className="mb-8 p-6 border border-gray-300 rounded-lg">
+          <h3 className="text-xl font-semibold mb-4">Basic Information</h3>
+          <UserProfileForm
+            initialValues={{
+              firstName: firstName || "",
+              lastName: lastName || "",
+              email: email || "",
+              phone: phone || "",
+            }}
+            onSubmit={handleBasicSubmit}
+            onEdit={setIsBasicEditable}
+            isEditable={isBasicEditable}
+          />
+        </div>
+
+        {/* Trainer form */}
+        {role === "trainer" && (
+          <div className="mb-8 p-6 border border-gray-300 rounded-lg">
+            <h3 className="text-xl font-semibold mb-4">Trainer Information</h3>
+            <TrainerProfileForm
+              initialValues={{
+                introduction: trainer.introduction || "",
+                qualifications: trainer.qualifications || [""],
+                expertise: trainer.expertise || [""],
+                specializations: trainer.specializations || [""],
+                photos: trainer.photos || [""],
+                videos: trainer.videos || [""],
+              }}
+              onSubmit={handleTrainerSubmit}
+              onEdit={setIsTrainerEditable}
+              isEditable={isTrainerEditable}
+            />
+          </div>
         )}
       </div>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={userValidation}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ handleChange, values, isSubmitting, resetForm }) => (
-          <Form>
-            <div className="mb-4">
-              <label className="font-semibold block mb-1">First Name:</label>
-              <Field
-                type="text"
-                name="firstName"
-                className={`border p-2 rounded w-full ${
-                  isEditable ? "border-gray-300" : "bg-gray-100"
-                }`}
-                onChange={handleChange}
-                value={values.firstName}
-                disabled={!isEditable}
-              />
-              <ErrorMessage
-                name="firstName"
-                component="div"
-                className="text-red-500 mt-1"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="font-semibold block mb-1">Last Name:</label>
-              <Field
-                type="text"
-                name="lastName"
-                className={`border p-2 rounded w-full ${
-                  isEditable ? "border-gray-300" : "bg-gray-100"
-                }`}
-                onChange={handleChange}
-                value={values.lastName}
-                disabled={!isEditable}
-              />
-              <ErrorMessage
-                name="lastName"
-                component="div"
-                className="text-red-500 mt-1"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="font-semibold block mb-1">Email:</label>
-              <Field
-                type="email"
-                name="email"
-                className={`border p-2 rounded w-full ${
-                  isEditable ? "border-gray-300" : "bg-gray-100"
-                }`}
-                onChange={handleChange}
-                value={values.email}
-                disabled={!isEditable}
-              />
-              <ErrorMessage
-                name="email"
-                component="div"
-                className="text-red-500 mt-1"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="font-semibold block mb-1">Phone:</label>
-              <Field
-                type="text"
-                name="phone"
-                className={`border p-2 rounded w-full ${
-                  isEditable ? "border-gray-300" : "bg-gray-100"
-                }`}
-                onChange={handleChange}
-                value={values.phone}
-                disabled={!isEditable}
-              />
-              <ErrorMessage
-                name="phone"
-                component="div"
-                className="text-red-500 mt-1"
-              />
-            </div>
-            <div className="flex gap-4 mt-4">
-              {isEditable ? (
-                <>
-                  <button
-                    type="submit"
-                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
-                    disabled={isSubmitting}
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
-                    onClick={() => handleCancel(resetForm)}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-                  onClick={handleEdit}
-                >
-                  Edit
-                </button>
-              )}
-            </div>
-          </Form>
-        )}
-      </Formik>
-    </div>
+    </section>
   );
 };
 

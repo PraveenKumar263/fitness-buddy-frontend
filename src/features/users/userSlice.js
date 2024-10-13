@@ -52,13 +52,18 @@ export const userSlice = createSlice({
       state.error = action.payload;
     },
     clearUser: (state) => initialState,
-    updateUser: (state, action) => {
-      Object.assign(state, action.payload);
+    updateUserBasicInfo: (state, action) => {
+      const { _id, firstName, lastName, email, phone } = action.payload;
+      state._id = _id;
+      state.firstName = firstName;
+      state.lastName = lastName;
+      state.email = email;
+      state.phone = phone;
     },
   },
 });
 
-export const { setUser, setUserError, clearUser, updateUser } =
+export const { setUser, setUserError, clearUser, updateUserBasicInfo } =
   userSlice.actions;
 
 export const selectUser = (state) => state.user;

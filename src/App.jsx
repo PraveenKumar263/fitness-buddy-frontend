@@ -27,15 +27,18 @@ import TrainerProfile from "./components/TrainerProfile";
 import { useEffect } from "react";
 import authServices from "./services/authServices";
 import UserProfile from "./components/UserProfile";
+import Footer from "./wrappers/Footer";
+import NotFound from "./pages/NotFound";
 
 const Layout = () => {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <HomeNav />
-      <main className="p-4">
+      <main className="flex-grow p-4 bg-gray-100">
         <Outlet />
       </main>
-    </>
+      <Footer />
+    </div>
   );
 };
 
@@ -82,6 +85,18 @@ const router = createBrowserRouter([
         element: <TrainerProfile />,
       },
       {
+        path: "classes",
+        element: <Classes />,
+      },
+      {
+        path: "classes/:classId",
+        element: <ClassDetails />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+      {
         path: "/dashboard",
         element: (
           <PrivateRoute>
@@ -94,14 +109,7 @@ const router = createBrowserRouter([
             path: "",
             element: <Dashboard />,
           },
-          {
-            path: "classes",
-            element: <Classes />,
-          },
-          {
-            path: "classes/:classId",
-            element: <ClassDetails />,
-          },
+
           {
             path: "my-classes",
             element: <MyClasses />,

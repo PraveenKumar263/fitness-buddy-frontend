@@ -27,7 +27,13 @@ const Login = () => {
       try {
         const response = await authServices.login(values);
         dispatch(loginSuccess());
-        setTimeout(() => navigate("/dashboard"), 500);
+        const redirectPath = localStorage.getItem("redirectPath");
+        if (redirectPath) {
+          localStorage.removeItem("redirectPath");
+          navigate(redirectPath);
+        } else {
+          setTimeout(() => navigate("/dashboard"), 500);
+        }
       } catch (error) {
         dispatch(
           loginFail(
@@ -46,9 +52,9 @@ const Login = () => {
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
-          className="mx-auto h-10 w-auto"
-          src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-          alt="Your Company"
+          className="mx-auto h-12 w-auto"
+          src="/FitBuddyLogo.jpeg"
+          alt="FitBuddy"
         />
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Sign in to your account
