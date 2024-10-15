@@ -4,6 +4,10 @@ import { useDispatch } from "react-redux";
 import authServices from "../services/authServices";
 import { logoutSuccess } from "../features/auth/authSlice";
 
+const clearCookie = (name) => {
+  document.cookie = `${name}=; Max-Age=0; path=/;`;
+};
+
 const Logout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
