@@ -12,6 +12,7 @@ const Logout = () => {
     const logoutUser = async () => {
       try {
         await authServices.logout();
+        clearCookie("token");
         dispatch(logoutSuccess());
 
         navigate("/");
